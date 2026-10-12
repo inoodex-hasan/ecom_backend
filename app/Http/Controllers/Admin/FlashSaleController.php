@@ -184,7 +184,7 @@ class FlashSaleController extends Controller
         $path = $request->file('image')->store('flash-sales', 'public');
 
         return response()->json([
-            'url' => asset('storage/'.$path),
+            'url' => '/storage/'.$path,
         ]);
     }
 

@@ -30,7 +30,7 @@ class ProductController extends Controller
         ]);
         $path = $request->file('image')->store('products', 'public');
 
-        return response()->json(['url' => Storage::url($path)]);
+        return response()->json(['url' => '/storage/'.$path]);
     }
 
     public function export(Request $request): BinaryFileResponse
@@ -140,6 +140,10 @@ class ProductController extends Controller
             'variants.*.is_active' => 'boolean',
         ]);
 
+        if (! empty($validated['primary_image']) && str_contains($validated['primary_image'], '/storage/')) {
+            $validated['primary_image'] = parse_url($validated['primary_image'], PHP_URL_PATH) ?? $validated['primary_image'];
+        }
+
         $variantsData = $validated['variants'] ?? [];
         unset($validated['variants']);
 
@@ -155,9 +159,10 @@ class ProductController extends Controller
 
             if (! empty($validated['gallery_images'])) {
                 foreach ($validated['gallery_images'] as $idx => $imgPath) {
+                    $cleanImg = str_contains($imgPath, '/storage/') ? (parse_url($imgPath, PHP_URL_PATH) ?? $imgPath) : $imgPath;
                     ProductImage::create([
                         'product_id' => $product->id,
-                        'image_path' => $imgPath,
+                        'image_path' => $cleanImg,
                         'is_primary' => $idx === 0 && empty($product->primary_image),
                         'sort_order' => $idx + 1,
                     ]);
@@ -233,6 +238,10 @@ class ProductController extends Controller
             'variants.*.image' => 'nullable|string',
             'variants.*.is_active' => 'boolean',
         ]);
+
+        if (! empty($validated['primary_image']) && str_contains($validated['primary_image'], '/storage/')) {
+            $validated['primary_image'] = parse_url($validated['primary_image'], PHP_URL_PATH) ?? $validated['primary_image'];
+        }
 
         $variantsData = $validated['variants'] ?? [];
         unset($validated['variants']);

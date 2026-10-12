@@ -74,6 +74,13 @@ class BannerController extends Controller
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
         ]);
 
+        if (! empty($validated['image_url']) && str_contains($validated['image_url'], '/storage/')) {
+            $validated['image_url'] = parse_url($validated['image_url'], PHP_URL_PATH) ?? $validated['image_url'];
+        }
+        if (! empty($validated['mobile_image_url']) && str_contains($validated['mobile_image_url'], '/storage/')) {
+            $validated['mobile_image_url'] = parse_url($validated['mobile_image_url'], PHP_URL_PATH) ?? $validated['mobile_image_url'];
+        }
+
         Banner::create($validated);
 
         return redirect()->back()->with('success', 'Banner created successfully.');
@@ -95,6 +102,13 @@ class BannerController extends Controller
             'starts_at' => 'nullable|date',
             'ends_at' => 'nullable|date|after_or_equal:starts_at',
         ]);
+
+        if (! empty($validated['image_url']) && str_contains($validated['image_url'], '/storage/')) {
+            $validated['image_url'] = parse_url($validated['image_url'], PHP_URL_PATH) ?? $validated['image_url'];
+        }
+        if (! empty($validated['mobile_image_url']) && str_contains($validated['mobile_image_url'], '/storage/')) {
+            $validated['mobile_image_url'] = parse_url($validated['mobile_image_url'], PHP_URL_PATH) ?? $validated['mobile_image_url'];
+        }
 
         $banner->update($validated);
 
@@ -119,7 +133,7 @@ class BannerController extends Controller
         $path = $file->store($folder, 'public');
 
         return response()->json([
-            'url' => asset('storage/'.$path),
+            'url' => '/storage/'.$path,
         ]);
     }
 

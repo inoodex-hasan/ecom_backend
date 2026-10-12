@@ -68,6 +68,10 @@ class CategoryController extends Controller
             $counter++;
         }
 
+        if (! empty($validated['image']) && str_contains($validated['image'], '/storage/')) {
+            $validated['image'] = parse_url($validated['image'], PHP_URL_PATH) ?? $validated['image'];
+        }
+
         Category::create([
             ...$validated,
             'slug' => $slug,
@@ -98,6 +102,10 @@ class CategoryController extends Controller
             'is_active' => 'boolean',
             'sort_order' => 'integer|min:0',
         ]);
+
+        if (! empty($validated['image']) && str_contains($validated['image'], '/storage/')) {
+            $validated['image'] = parse_url($validated['image'], PHP_URL_PATH) ?? $validated['image'];
+        }
 
         $slug = ! empty($validated['slug'])
             ? Str::slug($validated['slug'])
@@ -137,7 +145,7 @@ class CategoryController extends Controller
         $path = $request->file('image')->store('categories', 'public');
 
         return response()->json([
-            'url' => asset('storage/'.$path),
+            'url' => '/storage/'.$path,
         ]);
     }
 

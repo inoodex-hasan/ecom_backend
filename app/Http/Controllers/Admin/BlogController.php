@@ -101,6 +101,10 @@ class BlogController extends Controller
 
         $isPublished = $validated['is_published'] ?? true;
 
+        if (! empty($validated['cover_image']) && str_contains($validated['cover_image'], '/storage/')) {
+            $validated['cover_image'] = parse_url($validated['cover_image'], PHP_URL_PATH) ?? $validated['cover_image'];
+        }
+
         BlogPost::create([
             'title' => $validated['title'],
             'slug' => $slug,
@@ -137,6 +141,10 @@ class BlogController extends Controller
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
         ]);
+
+        if (! empty($validated['cover_image']) && str_contains($validated['cover_image'], '/storage/')) {
+            $validated['cover_image'] = parse_url($validated['cover_image'], PHP_URL_PATH) ?? $validated['cover_image'];
+        }
 
         $slug = ! empty($validated['slug'])
             ? Str::slug($validated['slug'])
@@ -192,7 +200,7 @@ class BlogController extends Controller
         $path = $request->file('image')->store('blogs', 'public');
 
         return response()->json([
-            'url' => asset('storage/'.$path),
+            'url' => '/storage/'.$path,
         ]);
     }
 
